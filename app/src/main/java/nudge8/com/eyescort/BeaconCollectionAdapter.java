@@ -13,7 +13,6 @@ import org.altbeacon.beacon.Beacon;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 
 public class BeaconCollectionAdapter extends BaseAdapter {
@@ -35,7 +34,9 @@ public class BeaconCollectionAdapter extends BaseAdapter {
     public void replaceWith(Collection<Beacon> beacons) {
         this.beacons.clear();
         this.beacons.addAll(beacons);
-        Collections.sort(this.beacons, new BeaconComparator());
+
+        /*짧은 거리순으로 sort
+        Collections.sort(this.beacons, new BeaconComparator());*/
         notifyDataSetChanged();
     }
 

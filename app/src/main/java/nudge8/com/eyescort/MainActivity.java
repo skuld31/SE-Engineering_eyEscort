@@ -1,9 +1,11 @@
 package nudge8.com.eyescort;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -14,10 +16,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import nudge8.com.eyescort.R;
-
 public class MainActivity extends Activity {
-
+    public static final boolean SCAN_RECO_ONLY = true;
+    /* 해당 메소드는 기기에서 BLE 장치들을 스캔할 때(즉, ranging 시에), 연속적으로 계속 스캔할 것인지, 불연속적으로 스캔할 것인지 설정하는 것입니다.*/
+    public static final boolean DISCONTINUOUS_SCAN = false;
     Intent ScreamIntent;
 
     Intent SpeechIntent;
@@ -27,8 +29,8 @@ public class MainActivity extends Activity {
 
     MediaPlayer mp1;
     MediaPlayer mp2;
-//    MediaPlayer mp3;
-//    MediaPlayer mp4;
+    MediaPlayer mp3;
+
 
     Timer timer;
     TimerTask myTask;
@@ -36,16 +38,23 @@ public class MainActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+       /* 진동 메소드  500 = 0.5초 */
+        Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibe.vibrate(500);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         SpeechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SpeechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
         SpeechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
         mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         mRecognizer.setRecognitionListener(listener);
 
-        mp1 = MediaPlayer.create(this, R.raw.check);
-//        mp2 = MediaPlayer.create(this, R.raw.iamgoodtoo);
+        mp1 = MediaPlayer.create(this, R.raw.twenty);
+        mp2 = MediaPlayer.create(this, R.raw.ten);
+        mp3 = MediaPlayer.create(this, R.raw.check);
 
         timer = new Timer();
 

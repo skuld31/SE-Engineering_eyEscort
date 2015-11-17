@@ -1,9 +1,12 @@
 package nudge8.com.eyescort;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.Vibrator;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -12,6 +15,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.altbeacon.beacon.Beacon;
@@ -38,20 +43,46 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
     MediaPlayer mp2;
     MediaPlayer mp3;
 
-
     Timer timer;
     TimerTask myTask;
-    int cnt;
+    int cnt=0;
+    double check1=100;
+    double check2=100;
+    ArrayList<String> check = new ArrayList<String>();
 
     String str = "";
 
+    // Local Bluetooth adapter
+    private BluetoothAdapter mBluetoothAdapter = null;
+    private static final int REQUEST_ENABLE_BT = 3;
+    private ArrayList<Beacon> beacons;
+
+
     public static final String TAG = "BeaconsEverywhere";
     private BeaconManager beaconManager;
+    private ListView listView;
+    private TextView statusView;
+    private BeaconCollectionAdapter beaconAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);  // load activity_main in layout folder for the first activity
+
+        this.beaconAdapter = new BeaconCollectionAdapter(this);
+        this.listView = (ListView) findViewById(R.id.listView);
+        this.statusView = (TextView) findViewById(R.id.currentStatus);
+        listView.setAdapter(this.beaconAdapter);
+
+        // Get local Bluetooth adapter
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if (!mBluetoothAdapter.isEnabled())
+        {
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
+
 
         // The following parts are for voice recognition
         SpeechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -64,7 +95,7 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
         // but is usually created for storing sound recording files
         mp1 = MediaPlayer.create(this, R.raw.twenty);
         mp2 = MediaPlayer.create(this, R.raw.ten);
-        mp3 = MediaPlayer.create(this, R.raw.arrived);
+        mp3 = MediaPlayer.create(this, R.raw.check);
 
         timer = new Timer(); // this is later used as the waiting time after voice recognition button has been pressed
 
@@ -88,6 +119,15 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
     protected void onDestroy() {
         super.onDestroy();
         beaconManager.unbind(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -124,50 +164,96 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
             }
         });
 
+
         beaconManager.setRangeNotifier(new RangeNotifier() {
             @Override
-            public void didRangeBeaconsInRegion(Collection<Beacon> beacons, Region region) {
-                for (Beacon oneBeacon : beacons) {
+            public void didRangeBeaconsInRegion(final Collection<Beacon> rangedBeacons, Region region) {
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        statusView.setText("Beacons found: " + rangedBeacons.size());
+                        beaconAdapter.replaceWith(rangedBeacons);
+                    }
+
+
+                });
+
+
+                for (Beacon oneBeacon : rangedBeacons) {
+                    int size = rangedBeacons.size();
+                    for (int i=0; i<size; i++) {
+                        check.add(oneBeacon.getId3().toString());
+                        if (check.get(i).equals("30")) {
+                            check1 = oneBeacon.getDistance();
+                        } else if (check.get(i).equals("31")) {
+                            check2 = oneBeacon.getDistance();
+                        }
+                    }
+                    if (check1 < 3 && check1 > 2) {
+                        if (cnt == 0) {
+                            mp1.start();
+
+                            cnt++;
+                        }
+
+                    } else if (check1 < 2 && check1 > 1) {
+                        if(cnt==1) {
+                            mp2.start();
+
+                        }
+                    } else if (check1 < 1) {
+                        mp3.start();
+
+
+                        if (check1 - check2 > 2 || check1 - check2 < -2) {
+                            Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            vibe.vibrate(500);
+
+
+
+                        }
+                    }
+
+                }
+
+            }
+        });
+
+
+                /* for (Beacon oneBeacon : rangedBeacons) {
                     Log.d(TAG, "distance: " + oneBeacon.getDistance() + " id:" + oneBeacon.getId1() + "/" + oneBeacon.getId2() + "/" + oneBeacon.getId3());
                     Log.e(TAG, "distance:" + oneBeacon.getDistance());
                     Log.e(TAG, "count:" + cnt);
 
-
-                    if (oneBeacon.getDistance() < 20 && oneBeacon.getDistance() > 15) { // if the distance to beacon is less than 20 m ...
-                        if(cnt == 0) {
-                            mp1.start();                            // play sound recording
-                            cnt++;
-                        }
-                        Log.e("요기", "traffic light 20m nearby");
-
-                        // and print the Log to inform us that it was activated
+                    if (oneBeacon.getDistance() < 20 && oneBeacon.getDistance() > 15) { // if the distance to beacon is less than
+                       if(cnt==0) {
+                           mp1.start();  // play sound recording
+                           cnt++;
+                       }
+                        Log.e("요기", "traffic light nearby");   // and print the Log to inform us that it was activated
                     }
-
                     else if(oneBeacon.getDistance() < 9 && oneBeacon.getDistance() > 4) {
-                        if(cnt == 0 || cnt == 1) {
+                        if(cnt==0 || cnt ==1) {
                             mp2.start();
                             cnt++;
                         }
                         Log.e("요기", "traffic light 10m nearby");
 
-                    }
-
+                        }
                     if(oneBeacon.getDistance() < 1) {
-                        if(cnt == 0 || cnt == 1) {
+                        if(cnt==0 || cnt ==1) {
                             mp3.start();
                             cnt++;
                         }
                         Log.e("요기", "traffic light nearby");
-
                     }
-                }
-            }
+                } */
 
-
-        });
 
         try {
-            beaconManager.startMonitoringBeaconsInRegion(region);
+            beaconManager.startMonitoringBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -181,28 +267,11 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
 
 
 
 
     // The below codes are all for Voice Recognition, while the above are for Beacon functionalities
-
-
 
 
     // Part II. Voice Recognition Functionalities

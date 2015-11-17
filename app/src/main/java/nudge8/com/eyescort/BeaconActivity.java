@@ -6,6 +6,9 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.perples.recosdk.RECOBeaconRegion;
 
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
@@ -16,6 +19,7 @@ import org.altbeacon.beacon.MonitorNotifier;
 import org.altbeacon.beacon.RangeNotifier;
 import org.altbeacon.beacon.Region;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 
@@ -23,6 +27,8 @@ public class BeaconActivity extends ActionBarActivity implements BeaconConsumer 
 
     public static final String TAG = "BeaconsEverywhere";
     private BeaconManager beaconManager;
+    private TextView tv;
+    private ArrayList<RECOBeaconRegion> rangingRegions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +52,11 @@ public class BeaconActivity extends ActionBarActivity implements BeaconConsumer 
 
     @Override
     public void onBeaconServiceConnect() {
-//        final Region region = new Region("myBeaons", Identifier.parse("<replaceBySomeUIID>"), null, null);
+//        final Region region = new Region("myBeaons", Identifier.parse("<replaceBySomeUIID>"), Major, name);
         final Region region = new Region("myBeaons", Identifier.parse("24ddf411-8cf1-440c-87cd-e368daf9c93e"), null, null);
-        beaconManager.setMonitorNotifier(new MonitorNotifier() {
+
+
+            beaconManager.setMonitorNotifier(new MonitorNotifier() {
             @Override
             public void didEnterRegion(Region region) {
                 try {
