@@ -69,6 +69,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);  // load activity_main in layout folder for the first activity
 
+        // Connect with Parse server
+        Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
+
         this.beaconAdapter = new BeaconCollectionAdapter(this);
         this.listView = (ListView) findViewById(R.id.listView);
         this.statusView = (TextView) findViewById(R.id.currentStatus);
