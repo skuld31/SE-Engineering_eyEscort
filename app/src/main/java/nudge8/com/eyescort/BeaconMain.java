@@ -33,8 +33,14 @@ import java.util.Collection;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 
-public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
+
+public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnInitListener  {
+
+//TTS
+    private TextToSpeech tts;
 
 //    Create objects for each clss
     Intent SpeechIntent;
@@ -71,6 +77,33 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
 
         // Connect with Parse server
         Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
+
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
+        query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
+            public void done(ParseObject object, ParseException e) {
+                if (e == null) {
+                    //
+                    int id = object.getInt("ID");
+                    String loc = object.getString("Location");
+
+                    Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+
+                    if (!tts.isSpeaking()) {
+
+                        tts.speak(loc, TextToSpeech.QUEUE_FLUSH, null);
+
+                    }
+
+
+                } else {
+                    // something went wrong
+                    Toast.makeText(BeaconMain.this, "error occurred", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
 
         this.beaconAdapter = new BeaconCollectionAdapter(this);
         this.listView = (ListView) findViewById(R.id.listView);
@@ -113,6 +146,17 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
     }
 
 
+    // TTS
+    @Override
+    public void onInit(int code) {
+        if (code==TextToSpeech.SUCCESS) {
+            tts.setLanguage(Locale.getDefault());
+        } else {
+            tts = null;
+            Toast.makeText(this, "Failed to initialize TTS engine.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 
 
     // Part I. Beacon Functionalities
@@ -120,6 +164,10 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
 
     @Override
     protected void onDestroy() {
+        if (tts!=null) {
+            tts.stop();
+            tts.shutdown();
+        }
         super.onDestroy();
         beaconManager.unbind(this);
     }
@@ -326,6 +374,31 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer {
                 mp1.start();
                 Toast.makeText(BeaconMain.this, " Hey, how are you?", Toast.LENGTH_LONG).show();
             }
+            
+            if ((str.contains("parse"))) {
+
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
+                query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
+                    public void done(ParseObject object, ParseException e) {
+                        if (e == null) {
+
+//                            int id = object.getInt("ID");
+                            String loc = object.getString("Location");
+
+                            Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+
+
+                        } else {
+                            // something went wrong
+
+                            Toast.makeText(BeaconMain.this, "error occurred", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+            }
+            
 
         }
 
