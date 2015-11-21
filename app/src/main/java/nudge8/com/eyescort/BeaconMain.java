@@ -123,7 +123,7 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
         // The following parts are for voice recognition
         SpeechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         SpeechIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE, getPackageName());
-        SpeechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "en-US");
+        SpeechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ko-KR");
         mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         mRecognizer.setRecognitionListener(listener);
         // The following is a way to use the created object, mp1, to connect with voice recording file, 'check.m4a'
@@ -375,7 +375,7 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
                 Toast.makeText(BeaconMain.this, " Hey, how are you?", Toast.LENGTH_LONG).show();
             }
             
-            if ((str.contains("parse"))) {
+            if ((str.contains("신호등")) || str.contains("어디야")) {
 
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
                 query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
@@ -387,6 +387,11 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
                             Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
 //                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+                            if (!tts.isSpeaking()) {
+
+                                tts.speak(loc, TextToSpeech.QUEUE_FLUSH, null);
+
+                            }
 
 
                         } else {
