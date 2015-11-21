@@ -1,4 +1,10 @@
 <resources>
+    <string name="parse_app_id">9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo</string>
+    <string name="parse_client_key">LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT</string>
+
+    <string name="app_name">eyEscort</string>
+    
+    
     <string name="app_name">eyEscort</string>
 
     <string name="hello_world">Hello world!</string>
