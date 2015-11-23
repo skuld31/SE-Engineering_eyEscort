@@ -19,6 +19,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
+import com.parse.GetCallback;
+import com.parse.Parse;
+import com.parse.ParseException;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
+
 import org.altbeacon.beacon.Beacon;
 import org.altbeacon.beacon.BeaconConsumer;
 import org.altbeacon.beacon.BeaconManager;
@@ -30,17 +37,19 @@ import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 
+public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnInitListener {
 
-public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnInitListener  {
-
-//TTS
+    //TTS
     private TextToSpeech tts;
+
 
 //    Create objects for each clss
     Intent SpeechIntent;
@@ -70,45 +79,56 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
     private TextView statusView;
     private BeaconCollectionAdapter beaconAdapter;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);  // load activity_main in layout folder for the first activity
 
-        // Connect with Parse server
-        Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
-
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
-        query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
-            public void done(ParseObject object, ParseException e) {
-                if (e == null) {
-                    //
-                    int id = object.getInt("ID");
-                    String loc = object.getString("Location");
-
-                    Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
-//                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
-
-                    if (!tts.isSpeaking()) {
-
-                        tts.speak(loc, TextToSpeech.QUEUE_FLUSH, null);
-
-                    }
-
-
-                } else {
-                    // something went wrong
-                    Toast.makeText(BeaconMain.this, "error occurred", Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-
-
-
         this.beaconAdapter = new BeaconCollectionAdapter(this);
         this.listView = (ListView) findViewById(R.id.listView);
         this.statusView = (TextView) findViewById(R.id.currentStatus);
         listView.setAdapter(this.beaconAdapter);
+
+        //TTS
+        tts = new TextToSpeech(this, this);
+
+        // Parse
+
+        Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
+
+        //Parse
+        //public ParseObject trafficLight = new ParseObject("TrafficLight");
+//        trafficLight.put("ID", 4);
+//        trafficLight.put("Location", "성북구 안암동 7거리");
+//        trafficLight.saveInBackground();
+
+//        ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
+//        query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
+//            public void done(ParseObject object, ParseException e) {
+//                if (e == null) {
+//                    //
+//                    int id = object.getInt("ID");
+//                    String loc = object.getString("Location");
+//
+//                    Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
+////                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+//
+//                    if (!tts.isSpeaking()) {
+//
+//                        tts.speak(loc, TextToSpeech.QUEUE_FLUSH, null);
+//
+//                    }
+//
+//
+//                } else {
+//                    // something went wrong
+//                    Toast.makeText(BeaconMain.this, "error occurred", Toast.LENGTH_LONG).show();
+//                }
+//            }
+//        });
+
 
         // Get local Bluetooth adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -156,7 +176,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
             Toast.makeText(this, "Failed to initialize TTS engine.", Toast.LENGTH_SHORT).show();
         }
     }
-
 
 
     // Part I. Beacon Functionalities
@@ -231,6 +250,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
                 });
 
+
+                //major - getId2()
+                //minor - getId3()
 
                 for (Beacon oneBeacon : rangedBeacons) {
                     int size = rangedBeacons.size();
@@ -369,16 +391,50 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
             // if voice input, after being translated to text contains "hello"
             // then play mp1 and Toast "Hey, how are you?"
-            if ((str.contains("hello") && str.contains(""))) {
+//            if ((str.contains("hello") && str.contains(""))) {
+//
+//                mp1.start();
+////                Toast.makeText(BeaconMain.this, "Hey, how are you?", Toast.LENGTH_LONG).show();
+//                Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+//            }
 
-                mp1.start();
-                Toast.makeText(BeaconMain.this, " Hey, how are you?", Toast.LENGTH_LONG).show();
-            }
-            
-            if ((str.contains("신호등")) || str.contains("어디야")) {
+
+
+            // added by Sangho
+//            String trafficId = beacons.get(0).toString();
+//            Toast.makeText(BeaconMain.this, trafficId, Toast.LENGTH_LONG).show();
+//
+//
+//
+//            if ((str.contains("안암")) || str.contains("오거리")) {
+//                Log.e(TAG, "beaconId_e: "+trafficId);
+//                Log.d(TAG, "beaconId_d: "+trafficId);
+//            }
+//            if ((str.contains("안암")) || str.contains("오거리")) {
+//
+//                ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
+//                query.whereEqualTo("Major", "1");
+//                query.whereEqualTo("Minor","91");
+//                query.findInBackground(new FindCallback<ParseObject>() {
+//                    public void done(List<ParseObject> object, ParseException e) {
+//                        if (e == null) {
+//                            object.get(1).toString();
+//                            Log.d("Number of items: ", " "+ object.size());
+//                            Log.d("Location: ", " "+ object.size());
+//                        } else {
+//                            Log.d("score", "Error: " + e.getMessage());
+//                        }
+//                    }
+//                });
+//
+//
+//            }
+            if ((str.contains("지금")) || str.contains("어디야")) {
 
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
-                query.getInBackground("0vDSmgzdaS", new GetCallback<ParseObject>() {
+                query.whereEqualTo("Major", 501);
+                query.whereEqualTo("Minor", 4390);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
                     public void done(ParseObject object, ParseException e) {
                         if (e == null) {
 
@@ -393,6 +449,38 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
                             }
 
+                        } else {
+                            // something went wrong
+
+                            Toast.makeText(BeaconMain.this, "error occurred", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
+
+            }
+
+
+
+            if ((str.contains("신호등")) || str.contains("어느")) {
+
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
+                query.whereEqualTo("Major", 1);
+                query.whereEqualTo("Minor", 91);
+                query.getFirstInBackground(new GetCallback<ParseObject>() {
+                    public void done(ParseObject object, ParseException e) {
+                        if (e == null) {
+
+//                            int id = object.getInt("ID");
+                            String loc = object.getString("Location");
+
+                            Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
+                            if (!tts.isSpeaking()) {
+
+                                tts.speak(loc, TextToSpeech.QUEUE_FLUSH, null);
+
+                            }
 
                         } else {
                             // something went wrong
@@ -402,8 +490,8 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
                     }
                 });
 
+
             }
-            
 
         }
 
