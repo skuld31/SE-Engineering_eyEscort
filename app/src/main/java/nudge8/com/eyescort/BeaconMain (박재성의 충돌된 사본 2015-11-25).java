@@ -10,6 +10,8 @@ import android.os.Vibrator;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -19,7 +21,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
@@ -37,13 +38,9 @@ import org.altbeacon.beacon.Region;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.TextToSpeech.OnInitListener;
 
 public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnInitListener {
 
@@ -54,9 +51,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 //    Create objects for each clss
     Intent SpeechIntent;
     SpeechRecognizer mRecognizer;
-//    MediaPlayer mp1;
-//    MediaPlayer mp2;
-//    MediaPlayer mp3;
+    MediaPlayer mp1;
+    MediaPlayer mp2;
+    MediaPlayer mp3;
 
     Timer timer;
     TimerTask myTask;
@@ -80,6 +77,11 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
     private BeaconCollectionAdapter beaconAdapter;
 
 
+
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,10 +95,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
         //TTS
         tts = new TextToSpeech(this, this);
 
-
-
         // Parse
-//        Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
+
+        Parse.initialize(this, "9DEuwzU9jxQRuA7FghaslDVT72WysCYvLRrm1Cxo", "LWYAzhDfKf11TrgVwLIup4tkg1cgbPo5uIjqcvMT");
 
 
 
@@ -152,9 +153,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
         // The following is a way to use the created object, mp1, to connect with voice recording file, 'check.m4a'
         // 'check.m4a' file is in raw folder in res folder and FYI, by default, 'raw' folder does not exist in res folder
         // but is usually created for storing sound recording files
-//        mp1 = MediaPlayer.create(this, R.raw.twenty);
-//        mp2 = MediaPlayer.create(this, R.raw.ten);
-//        mp3 = MediaPlayer.create(this, R.raw.check);
+        mp1 = MediaPlayer.create(this, R.raw.twenty);
+        mp2 = MediaPlayer.create(this, R.raw.ten);
+        mp3 = MediaPlayer.create(this, R.raw.check);
 
         timer = new Timer(); // this is later used as the waiting time after voice recognition button has been pressed
 
@@ -165,18 +166,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
         beaconManager.getBeaconParsers().add(new BeaconParser()
                 .setBeaconLayout("m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24,d:25-25"));
         beaconManager.bind(this);
-
-
-
-
-
-        //TTS
-        String greeting = "아이에스코트 안내를 시작합니다";
-        if (!tts.isSpeaking()) {
-
-            tts.speak(greeting, TextToSpeech.QUEUE_FLUSH, null);
-
-        }
 
     }
 
@@ -268,10 +257,9 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
                 //major - getId2()
                 //minor - getId3()
-
                 for (Beacon oneBeacon : rangedBeacons) {
                     int size = rangedBeacons.size();
-                    for (int i=0; i<size; i++) {
+                    for (int i = 0; i < size; i++) {
                         check.add(oneBeacon.getId3().toString());
                         if (check.get(i).equals("30")) {
                             check1 = oneBeacon.getDistance();
@@ -281,64 +269,103 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
                     }
                     if (check1 < 3 && check1 > 2) {
                         if (cnt == 0) {
-//                            mp1.start();
+                            mp1.start();
+                        } else if (check1 < 2 && check1 > 1) {
+                            if (cnt == 1) {
+                                mp2.start();
 
-                            cnt++;
+                            }
+                        } else if (check1 < 1) {
+                            mp3.start();
+
+
+                            if (check1 - check2 > 2 || check1 - check2 < -2) {
+                                Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                                vibe.vibrate(500);
+
+
+                            }
                         }
+                    }
+                }
+                /* Jaesung added
+                for (Beacon oneBeacon : rangedBeacons) {
+                    int size = rangedBeacons.size();
+                    for (int i=0; i<size; i++) {
+                        check.add(oneBeacon.getId3().toString());
+                        if (check.get(i).equals("31")) {
+                            check1 = oneBeacon.getDistance();
+                            Log.d(TAG, "check1 distance: "+ check1 + " minor:" + oneBeacon.getId3());
+                        }
+                        else if(check.get(i).equals("30")) {
+                            check2 = oneBeacon.getDistance();
+                            Log.d(TAG, "check2 distance: "+ check2 + " minor:" + oneBeacon.getId3());
+                        }
+                    }
 
+                    Log.d(TAG, "distance: " + oneBeacon.getDistance() + " id:" + oneBeacon.getId1() + "/" + oneBeacon.getId2() + "/" + oneBeacon.getId3());
+                    Log.e(TAG, "count:" + cnt);
+                    if ( check1 > 2 && check1 < 5) {
+                        if (cnt == 0) {
+                            mp1.start();
+                            cnt++;
+                            Log.e(TAG, "count1:" + cnt);
+                        }
                     } else if (check1 < 2 && check1 > 1) {
                         if(cnt==1) {
-//                            mp2.start();
-
+                            mp2.start();
+                            cnt++;
+                            Log.e(TAG, "count2:" + cnt);
                         }
                     } else if (check1 < 1) {
-//                        mp3.start();
-
+                        if(cnt==2) {
+                            mp3.start();
+                            cnt++;
+                            Log.e(TAG, "count3:" + cnt);
+                        }
 
                         if (check1 - check2 > 2 || check1 - check2 < -2) {
                             Vibrator vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                             vibe.vibrate(500);
+                            Log.d(TAG, "진동" + "check1 = " + check1 + "/" + "check2 = " + check2);
 
 
 
                         }
                     }
+                }*/
 
-                }
 
             }
         });
+        /*
+        for (Beacon oneBeacon : rangedBeacons) {
+            Log.d(TAG, "distance: " + oneBeacon.getDistance() + " id:" + oneBeacon.getId1() + "/" + oneBeacon.getId2() + "/" + oneBeacon.getId3());
+            Log.e(TAG, "count:" + cnt);
 
+            if (oneBeacon.getDistance() < 20 && oneBeacon.getDistance() > 15) { // if the distance to beacon is less than
+                if(cnt==0) {
+                    mp1.start();  // play sound recording
+                    cnt++;
+                }
+                Log.e("요기", "traffic light nearby");   // and print the Log to inform us that it was activated
+            }
+            else if(oneBeacon.getDistance() < 9 && oneBeacon.getDistance() > 4) {
+                if(cnt==0 || cnt ==1) {
+                    mp2.start();
+                    cnt++;
+                }
+                Log.e("요기", "traffic light 10m nearby");
 
-                /* for (Beacon oneBeacon : rangedBeacons) {
-                    Log.d(TAG, "distance: " + oneBeacon.getDistance() + " id:" + oneBeacon.getId1() + "/" + oneBeacon.getId2() + "/" + oneBeacon.getId3());
-                    Log.e(TAG, "distance:" + oneBeacon.getDistance());
-                    Log.e(TAG, "count:" + cnt);
-
-                    if (oneBeacon.getDistance() < 20 && oneBeacon.getDistance() > 15) { // if the distance to beacon is less than
-                       if(cnt==0) {
-                           mp1.start();  // play sound recording
-                           cnt++;
-                       }
-                        Log.e("요기", "traffic light nearby");   // and print the Log to inform us that it was activated
-                    }
-                    else if(oneBeacon.getDistance() < 9 && oneBeacon.getDistance() > 4) {
-                        if(cnt==0 || cnt ==1) {
-                            mp2.start();
-                            cnt++;
-                        }
-                        Log.e("요기", "traffic light 10m nearby");
-
-                        }
-                    if(oneBeacon.getDistance() < 1) {
-                        if(cnt==0 || cnt ==1) {
-                            mp3.start();
-                            cnt++;
-                        }
-                        Log.e("요기", "traffic light nearby");
-                    }
-                } */
-
+            }
+            if(oneBeacon.getDistance() < 1) {
+                if(cnt==0 || cnt ==1) {
+                    mp3.start();
+                    cnt++;
+                }
+                Log.e("요기", "traffic light nearby");
+            }
+        }*/
 
         try {
             beaconManager.startMonitoringBeaconsInRegion(new Region("myRangingUniqueId", null, null, null));
@@ -404,7 +431,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
             mResult.toArray(rs);
             str = rs[0];
 
-//            Toast.makeText(BeaconMain.this, "You said, \"" + str + "\"", Toast.LENGTH_LONG).show();
             // if voice input, after being translated to text contains "hello"
             // then play mp1 and Toast "Hey, how are you?"
 //            if ((str.contains("hello") && str.contains(""))) {
@@ -447,8 +473,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 //            }
             if ((str.contains("지금")) || str.contains("어디야")) {
 
-
-
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
                 query.whereEqualTo("Major", 501);
                 query.whereEqualTo("Minor", 4390);
@@ -459,7 +483,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 //                            int id = object.getInt("ID");
                             String loc = object.getString("Location");
 
-                            Toast.makeText(BeaconMain.this, "you said, "+ str, Toast.LENGTH_SHORT).show();
                             Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
 //                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
                             if (!tts.isSpeaking()) {
@@ -483,8 +506,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
             if ((str.contains("신호등")) || str.contains("어느")) {
 
-
-
                 ParseQuery<ParseObject> query = ParseQuery.getQuery("TrafficLight");
                 query.whereEqualTo("Major", 1);
                 query.whereEqualTo("Minor", 91);
@@ -495,7 +516,6 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 //                            int id = object.getInt("ID");
                             String loc = object.getString("Location");
 
-                            Toast.makeText(BeaconMain.this, "you said, "+ str, Toast.LENGTH_SHORT).show();
                             Toast.makeText(BeaconMain.this, loc, Toast.LENGTH_LONG).show();
 //                    Toast.makeText(BeaconMain.this, "20m 이내에 신호등이 있습니다", Toast.LENGTH_LONG).show();
                             if (!tts.isSpeaking()) {
@@ -514,6 +534,17 @@ public class BeaconMain extends ActionBarActivity implements BeaconConsumer, OnI
 
 
             }
+
+
+
+
+
+
+
+
+
+
+
 
                     }
 

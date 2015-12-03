@@ -1,15 +1,29 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.parse'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.parse.com/repo' }
+    }
+    dependencies {
+        classpath 'com.parse.tools:gradle:1.+'
+    }
+}
 
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
+
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         applicationId "nudge8.com.eyescort"
         minSdkVersion 15
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName "1.01"
     }
     buildTypes {
         release {
@@ -21,6 +35,7 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.0.0'
     compile 'org.altbeacon:android-beacon-library:2+'
+    compile 'com.parse:parse-android:1.11.0'
 }

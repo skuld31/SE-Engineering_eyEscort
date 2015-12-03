@@ -16,6 +16,10 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.parse.Parse;
+import com.parse.ParseAnalytics;
+import com.parse.ParseObject;
+
 public class MainActivity extends Activity {
     public static final boolean SCAN_RECO_ONLY = true;
     /* 해당 메소드는 기기에서 BLE 장치들을 스캔할 때(즉, ranging 시에), 연속적으로 계속 스캔할 것인지, 불연속적으로 스캔할 것인지 설정하는 것입니다.*/
@@ -27,9 +31,9 @@ public class MainActivity extends Activity {
 
     String str = "";
 
-    MediaPlayer mp1;
-    MediaPlayer mp2;
-    MediaPlayer mp3;
+//    MediaPlayer mp1;
+//    MediaPlayer mp2;
+//    MediaPlayer mp3;
 
 
     Timer timer;
@@ -52,11 +56,15 @@ public class MainActivity extends Activity {
         mRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
         mRecognizer.setRecognitionListener(listener);
 
-        mp1 = MediaPlayer.create(this, R.raw.twenty);
-        mp2 = MediaPlayer.create(this, R.raw.ten);
-        mp3 = MediaPlayer.create(this, R.raw.check);
+//        mp1 = MediaPlayer.create(this, R.raw.twenty);
+//        mp2 = MediaPlayer.create(this, R.raw.ten);
+//        mp3 = MediaPlayer.create(this, R.raw.check);
 
         timer = new Timer();
+
+
+
+
 
     }
 
@@ -92,10 +100,10 @@ public class MainActivity extends Activity {
             mResult.toArray(rs);
             str = rs[0];
             if ((str.contains("hello") && str.contains(""))) {
-                mp1.start();
+//                mp1.start();
                 Toast.makeText(MainActivity.this, " Hey, how are you?", Toast.LENGTH_LONG).show();
             } else if (str.contains("thank you") || str.contains("and you?") || str.contains("what about you?")) {
-                mp2.start();
+//                mp2.start();
                 Toast.makeText(MainActivity.this, " I am good, too. Thanks", Toast.LENGTH_LONG).show();
             }
             /*
