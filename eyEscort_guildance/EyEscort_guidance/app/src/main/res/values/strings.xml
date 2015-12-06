@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">eyEscort</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="str_done">완료</string>
+    <string name="title_activity_final_acitivy">FinalAcitivy</string>
+    <string name="title_activity_final">FinalActivity</string>
+    <string-array name="people">
+        <item>-보호자선택-</item>
+        <item>등록된 보호자 1</item>
+        <item>등록된 보호자 2</item>
+    </string-array>
+
+</resources>

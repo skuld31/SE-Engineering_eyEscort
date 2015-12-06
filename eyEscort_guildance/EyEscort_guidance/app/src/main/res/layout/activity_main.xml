@@ -1,0 +1,112 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" tools:context=".MainActivity"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="87dp"
+            android:id="@+id/imageButton"
+            android:background="@drawable/btnbtn_01"
+            android:layout_weight="1"
+            android:scaleType="matrix" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="83dp"
+            android:id="@+id/imageButton2"
+            android:background="@drawable/btnbtn_02"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:id="@+id/linearLayout2"
+        android:layout_below="@+id/linearLayout"
+        android:layout_alignLeft="@+id/button"
+        android:layout_alignStart="@+id/button"
+        android:layout_alignRight="@+id/button"
+        android:layout_alignEnd="@+id/button">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView"
+                android:src="@drawable/btn2_07"
+                />
+
+            <AutoCompleteTextView
+                android:id="@+id/myautocomplete"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:completionThreshold="2"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:hint="출발지 검색"
+                android:layout_above="@+id/myautocomplet2"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView2"
+                android:src="@drawable/btn2_07" />
+
+            <AutoCompleteTextView
+                android:id="@+id/myautocomplet2"
+                android:layout_width="fill_parent"
+                android:layout_height="50dp"
+                android:completionThreshold="2"
+                android:inputType="text"
+                android:imeOptions="actionSearch"
+                android:hint="도착지 검색"
+                android:layout_below="@+id/linearLayout"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:text="경로검색"
+        android:id="@+id/button"
+        android:background="#ff329b5e"
+        android:textColor="#ffffffff"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/linearLayout2"
+        android:layout_centerHorizontal="true"
+        android:textSize="20dp"
+        android:onClick="onClick"
+        android:nestedScrollingEnabled="false" />
+
+    z
+
+</RelativeLayout>
